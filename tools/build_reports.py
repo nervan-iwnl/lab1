@@ -234,6 +234,21 @@ def add_code(doc: Document, text: str, caption: str | None = None) -> None:
     set_run_font(run, "Consolas", 8.7)
 
 
+def add_figure(doc: Document, image_path: Path, caption: str, width: float = 6.15) -> None:
+    paragraph = doc.add_paragraph()
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    paragraph.paragraph_format.keep_with_next = True
+    paragraph.paragraph_format.space_before = Pt(7)
+    paragraph.paragraph_format.space_after = Pt(3)
+    paragraph.add_run().add_picture(str(image_path), width=Inches(width))
+    caption_paragraph = doc.add_paragraph()
+    caption_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    caption_paragraph.paragraph_format.space_after = Pt(8)
+    caption_run = caption_paragraph.add_run(caption)
+    set_run_font(caption_run, "Aptos", 9)
+    caption_run.italic = True
+
+
 def add_table(doc: Document, headers: list[str], rows: list[list[str]], widths: list[float] | None = None) -> None:
     table = doc.add_table(rows=1, cols=len(headers))
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -335,16 +350,32 @@ def report_one() -> Path:
     add_heading(doc, "Работа с веткой и конфликтом", 2)
     add_body(
         doc,
-        "В ветке feature-branch реализовано персональное приветствие. Параллельно в main изменена та же "
-        "строка файла, поэтому слияние вызвало содержательный конфликт. Итоговая версия вручную объединяет "
-        "оба изменения и сохранена merge-коммитом.",
+        "Для подтверждения навыка создана ветка feature-conflict. В ней изменена строка персонального "
+        "приветствия, а в main та же строка получила другой вариант. Команда git merge --no-ff "
+        "feature-conflict остановила слияние и пометила hello.py как неразрешённый файл UU.",
+    )
+    add_figure(
+        doc,
+        ROOT / "screenshots" / "lab1" / "01-conflict-detected.png",
+        "Рисунок 1 — Git обнаружил конфликт содержимого в hello.py",
+    )
+    add_body(
+        doc,
+        "Маркеры HEAD, разделитель и имя feature-conflict были удалены вручную. Два варианта объединены "
+        "в одну корректную строку, после чего результат добавлен в индекс и сохранён merge-коммитом "
+        "Разрешен конфликт приветствий.",
     )
     add_code(
         doc,
         'print("Git - это система контроля версий")\n'
         'name = input("Введите ваше имя: ")\n'
-        'print(f"Привет, {name}! Рад познакомиться.")',
+        'print(f"Здравствуйте, {name}! Добро пожаловать в Git — система готова к работе.")',
         "Итоговый файл hello.py после разрешения конфликта",
+    )
+    add_figure(
+        doc,
+        ROOT / "screenshots" / "lab1" / "02-conflict-resolved.png",
+        "Рисунок 2 — Чистое состояние main и merge-коммит после разрешения конфликта",
     )
 
     add_heading(doc, "Безопасный откат", 2)
@@ -361,21 +392,20 @@ def report_one() -> Path:
         doc,
         "Git - это система контроля версий\n"
         "Введите ваше имя: Иван\n"
-        "Привет, Иван! Рад познакомиться.",
+        "Здравствуйте, Иван! Добро пожаловать в Git — система готова к работе.",
         "Результат запуска программы",
     )
     add_body(
         doc,
-        "Локальная часть лабораторной работы выполнена полностью. Для формирования Pull Request на GitHub "
-        "нужно добавить адрес удалённого репозитория origin, отправить main и feature-branch и выполнить "
-        "слияние через веб-интерфейс под учётной записью владельца.",
+        "Репозиторий опубликован по адресу https://github.com/nervan-iwnl/lab1. В GitHub отправлены ветки "
+        "main, feature-branch и feature-conflict. История main содержит отдельные конкурирующие коммиты и "
+        "merge-коммит разрешения конфликта.",
     )
-    add_code(
+    add_figure(
         doc,
-        "# После добавления URL репозитория как origin:\n"
-        "git push -u origin main\n"
-        "git push -u origin feature-branch",
-        "Команды публикации после создания пустого репозитория",
+        ROOT / "screenshots" / "lab1" / "03-github-main-history.png",
+        "Рисунок 3 — Опубликованная история коммитов ветки main на GitHub",
+        width=5.5,
     )
 
     add_heading(doc, "Вывод")
@@ -386,7 +416,7 @@ def report_one() -> Path:
         "состоянии, а все учебные этапы видны в графе коммитов.",
     )
 
-    path = OUTPUT_DIR / "Отчет ЛБ 1 Git и GitHub.docx"
+    path = OUTPUT_DIR / "Отчет ЛБ 1 Git и GitHub итоговый.docx"
     doc.save(path)
     return path
 

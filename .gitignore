@@ -2,6 +2,7 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .report_qa/
+.edge-headless*/
 .venv/
 venv/
 .idea/
