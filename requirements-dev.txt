@@ -1,0 +1,4 @@
+-r lab2_orm/requirements.txt
+-r lab3_rest_api/requirements.txt
+pytest>=8.0,<9.0
+httpx>=0.27,<1.0
